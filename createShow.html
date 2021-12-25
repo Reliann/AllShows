@@ -1,0 +1,45 @@
+<html>
+    <body>
+        <div id="mainDiv">
+            name: <input type="text" id="nameBox" placeholder="Show's name"><br>
+            runtime: <input type="text" id="runtimeBox" placeholder="Show's runtime"><br>
+            language: <input type="text" id="languageBox" placeholder="Show's language"><br>
+            genres: <input type="text" id="genresBox" placeholder="gener1, gener2...."><br>
+            <button onclick="createNewShow()">Create</button>
+        </div>
+        <script>
+            let all_shows = JSON.parse(sessionStorage.getItem("shows"))
+            let container = document.getElementById("mainDiv")
+
+            
+
+            function createNewShow(){
+                let geners = document.getElementById("genresBox").value
+                geners = geners.replace(/ /g,'').split(",") //replace all spaces (g=all,/ /=space) then split by ","
+                
+                
+
+                let new_show={
+                    "id": all_shows.length? all_shows[all_shows.length-1].id+1:0,
+                    "name":document.getElementById("nameBox").value,
+                    "runtime":document.getElementById("runtimeBox").value,
+                    "language":document.getElementById("languageBox").value,
+                    "genres":geners,
+                    "rating":{"average":0},
+                    "type":"scripted",
+                    "image":{"medium":"http://placekitten.com/210/295",original:""},
+                    "officialSite":""
+                }
+                //do a post request here
+                postRequest(new_show)
+
+                all_shows.unshift(new_show)
+                sessionStorage.setItem("shows", JSON.stringify(all_shows))
+                location.href = "homePage.html"
+            }
+            async function postRequest(new_show){
+                //post the new show
+            }
+        </script>
+    </body>
+</html>

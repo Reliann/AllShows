@@ -1,0 +1,88 @@
+<html>
+    <header>
+        <style>
+           
+        </style>
+    </header>
+    <body onload="createPage()">
+
+        <div id="updateDiv">
+            <h2>enter new show data:</h2>
+            name: <input type="text" id="nameBox"><br>
+            rating: <input type="text" id="ratingBox"><br>
+            type: <input type="text" id="typeBox"><br>
+            runtime: <input type="text" id="runtimeBox"><br>
+            language: <input type="text" id="languageBox"><br>
+            <button onclick="updateShow()">update</button><br>
+
+        </div>
+
+
+        <script>
+            container = document.getElementById("updateDiv")
+            let all_shows = JSON.parse(sessionStorage.getItem("shows"))
+            console.log(all_shows)
+            let show = sessionStorage.getItem("update")
+            
+        
+            
+
+            function createPage(){
+               
+                if (!show || !all_shows){
+                    container.innerText = "nothing to update!"
+                    return
+                }
+                let updatedShow = null
+                all_shows.forEach(item => {
+                    if (show == item.id)
+                        {updatedShow = item}
+                });
+                if (!updatedShow){console.log("error");return}
+                show = updatedShow
+                
+                document.getElementById("nameBox").placeholder=show.name
+                document.getElementById("ratingBox").placeholder= show.rating.average
+                document.getElementById("typeBox").placeholder=show.type
+                document.getElementById("runtimeBox").placeholder=show.runtime
+                document.getElementById("languageBox").placeholder=show.language
+                
+                document.getElementById("nameBox").value=show.name
+                document.getElementById("ratingBox").value= show.rating.average
+                document.getElementById("typeBox").value=show.type
+                document.getElementById("runtimeBox").value=show.runtime
+                document.getElementById("languageBox").value=show.language
+            }
+            
+
+            function updateShow(){
+                
+                
+
+                
+                show.name= document.getElementById("nameBox").value,
+                show.rating=document.getElementById("ratingBox").value,
+                show.type=document.getElementById("typeBox").value,
+                show.runtime=document.getElementById("runtimeBox").value,
+                show.language=document.getElementById("languageBox").value
+                
+                //do a put request here: 
+                putRequest(show)
+
+                all_shows.map((item)=>{
+                    if(show.id==item.id)
+                    {
+                        return show
+                    }
+                })
+                
+
+                sessionStorage.setItem("shows", JSON.stringify(all_shows))
+                location.href = "homePage.html"
+            }
+            async function putRequest(show){
+                //update the show data in the server
+            }
+        </script>
+    </body>
+</html>

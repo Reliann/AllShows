@@ -1,0 +1,205 @@
+<html>
+    <header>
+        <style>
+            body{
+                background-color: rgb(180, 180, 180);
+            }
+            .showCard h2{
+                word-wrap: break-word;
+                font-size: 1.5vw;
+                margin-top: 25px;
+                text-align: center;
+                
+                
+            }
+         
+            .Headline{
+                color: black;
+                -webkit-text-fill-color: rgb(193, 75, 230); /* Will override color (regardless of order) */
+                -webkit-text-stroke-width: 1px;
+                -webkit-text-stroke-color: black;
+                font-size: 60px;
+            }
+            .wrapper {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                
+            }
+            .showCard{
+                border: 2px solid black;
+               background-color: rgb(250, 198, 198);
+               position: relative;
+               height: 385;
+               width:210px;
+               font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            }
+            .showCard img:hover{cursor: pointer}
+            .showCard:hover{
+                box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
+            }
+            .deleteButton{
+                position: absolute;
+                display: inline-block;
+                top:0;
+                left: 0;
+                background-color: rgb(160, 100, 100);
+                
+            }
+            .deleteButton:hover{background-color: rgb(161, 67, 67);}
+            .Headline{
+                
+                text-align: center;
+                font-family: 'Courier New', Courier, monospace;
+            }
+            .menuButton{
+                margin-bottom: 20px;
+                width: 20%;
+                display: block;
+                
+                
+            }
+            .updateButton{
+                position: absolute;
+                right:0px;
+                top:0px;
+                background-color:rgba(231, 231, 231, 0.568)
+            }
+            .updateButton:hover{background-color: rgb(170, 170, 170);}
+            .loadMore{
+                margin-top: 30px;
+                display: inline;
+                width:100%;
+            }
+        </style>
+    </header>
+
+    <body onload="createShowsTable()">
+        <h1 class="Headline">welcome to all shows!</h1>
+        <button onclick="createShow()" class="menuButton">Add show</button>
+        <div id="allShows" class="wrapper">
+         
+        </div>
+        <button id ="loadMoreButton"class="loadMore" onclick="loadMoreCards()">Load more</button>
+        <script>
+            const maxload = 30;
+            let page = document.getElementById("allShows")
+            let all_shows = JSON.parse(sessionStorage.getItem("shows"))
+            let display_index =0;
+            console.log(all_shows);
+            
+            async function GetAllShows(){
+                if (all_shows){return}
+                const resp = await fetch("https://api.tvmaze.com/shows")
+                if (resp.ok === true){
+                    let shows = await resp.json()
+                    all_shows= shows
+                    sessionStorage.setItem("shows", JSON.stringify(all_shows))
+                    
+                    
+                }else{
+                    console.log("can't get movies");
+                }
+            }
+            
+            async function createShowsTable(){
+                if (!all_shows)
+                { 
+                    await GetAllShows()
+                    
+                    if (!all_shows){return}
+                }
+                
+                
+                for(let i=0;i<maxload && display_index < all_shows.length;i++){
+                    
+                    createShowCard()
+                }
+
+            }
+            function createShowCard(){
+                
+                if (display_index==all_shows.length || !all_shows){
+                    return}
+                let show = all_shows[display_index]
+                display_index++
+                let divEl = document.createElement("div")
+                
+                let imgEl = document.createElement("img")
+                let h2El = document.createElement("h2")
+                let del_buttonEl= document.createElement("button")
+                let update_buttonEl=document.createElement("button")
+                
+                update_buttonEl.innerText='update'
+                update_buttonEl.onclick=function(){updateShow(this)}
+                update_buttonEl.value=show.id
+                update_buttonEl.className='updateButton'
+
+
+                del_buttonEl.innerText='X'
+                del_buttonEl.onclick = function () {deleteCard(this)}
+                del_buttonEl.className= "deleteButton"
+                del_buttonEl.value= show.id
+
+                imgEl.src=show.image.medium
+                imgEl.alt="not found"
+                imgEl.value = show.url
+                imgEl.onclick = function () {goToSite(this)}
+
+                h2El.innerText = show.name
+
+                divEl.className = "showCard"
+               
+
+                divEl.appendChild(imgEl)
+                divEl.appendChild(h2El)
+                divEl.appendChild(del_buttonEl)
+                divEl.appendChild(update_buttonEl)
+                page.appendChild(divEl)
+                if (display_index==all_shows.length){
+                    document.getElementById("loadMoreButton").style.display= 'none'
+                }
+                    //else{document.getElementById("loadMoreButton").style.display= 'inline'}
+                
+            }
+            async function delRequest(show_id){
+                //delete request
+            }
+
+            function deleteCard(button){
+                let to_delete = button.value
+                all_shows = all_shows.filter((show)=>(show.id != to_delete))
+                //do a del request here -- not sure what im getting from this ?
+                delRequest(to_delete)
+                sessionStorage.setItem("shows", JSON.stringify(all_shows))
+
+                button.parentElement.remove()
+                display_index--
+                createShowCard()
+
+            }
+            function goToSite(showCardimg){
+
+                location.href = showCardimg.value
+            }
+            function updateShow(button){
+                let to_update = button.value
+                
+                sessionStorage.setItem("update", to_update)
+                
+                location.href = "updateShow.html"
+                
+            }
+
+            function createShow(){
+                location.href="createShow.html"
+            }
+            function loadMoreCards(){
+                for(let i=0;i<maxload && display_index < all_shows.length;i++){
+                    createShowCard()
+                }
+            }
+            
+        </script>
+    </body>
+</html>
